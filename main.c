@@ -12,6 +12,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 	int tty_fd;
 	int fingerprint_fd;
 	const char *tty_name;
+	uint8_t *fingerprint_buffer;
 
 	ret = pam_get_item(pamh, PAM_TTY, (const void **)&tty_name);
 
@@ -49,6 +50,15 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 		return PAM_ABORT;
 	}
 
+	fingerprint_buffer = malloc(64);
+	if(fingerprint_buffer == NULL){
+		pam_syslog(pamh, LOG_ERR, "Could not allocate buffer for data");
+		return PAM_ABORT;
+	}
+
+	
+
+	free(fingerprint_buffer);
 	close(fingerprint_fd);
 
 	return PAM_ABORT;
