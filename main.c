@@ -10,6 +10,7 @@
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const char **argv ){
 	ssize_t ret;
 	int tty_fd;
+	int fingerprint_fd;
 	const char *tty_name;
 
 	ret = pam_get_item(pamh, PAM_TTY, (const void **)&tty_name);
@@ -41,6 +42,14 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 		pam_syslog(pamh, LOG_ERR, "Error duplicating stderr: %s", strerror(errno));
 		return PAM_ABORT;
 	}
+
+	fingerprint_fd = open("/dev/fingerprint", O_RDONLY);
+	if(fingerprint_fd < 0){
+		perror("Could not open fingerprint");
+		return PAM_ABORT;
+	}
+
+	close(fingerprint_fd);
 
 	return PAM_ABORT;
 }
