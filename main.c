@@ -30,6 +30,18 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 		return PAM_ABORT;
 	}
 
+	ret = dup2(tty_fd, STDOUT_FILENO);
+	if(tty_fd < 0){
+		pam_syslog(pamh, LOG_ERR, "Error duplicating stdout: %s", strerror(errno));
+		return PAM_ABORT;
+	}
+
+	ret = dup2(tty_fd, STDERR_FILENO);
+	if(tty_fd < 0){
+		pam_syslog(pamh, LOG_ERR, "Error duplicating stderr: %s", strerror(errno));
+		return PAM_ABORT;
+	}
+
 	return PAM_ABORT;
 }
 
