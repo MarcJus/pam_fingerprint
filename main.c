@@ -55,8 +55,17 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 		pam_syslog(pamh, LOG_ERR, "Could not allocate buffer for data");
 		return PAM_ABORT;
 	}
-
-	
+    
+	printf("Waiting for fingerprint...\n");
+	ret = read(fingerprint_fd, fingerprint_buffer, 64);
+	if(ret < 0){
+		perror("Could not read data from reader");
+		free(fingerprint_buffer);
+		close(fingerprint_fd);
+		return PAM_ABORT;
+	} else {
+		printf("Received data: 0x%x%x\n", fingerprint_buffer[0], fingerprint_buffer[1]);
+	}
 
 	free(fingerprint_buffer);
 	close(fingerprint_fd);
