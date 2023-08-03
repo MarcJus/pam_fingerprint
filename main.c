@@ -67,10 +67,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 		printf("Received data: 0x%x%x\n", fingerprint_buffer[0], fingerprint_buffer[1]);
 	}
 
+exit_free:
 	free(fingerprint_buffer);
+exit_close:
 	close(fingerprint_fd);
-
-	return PAM_ABORT;
+exit:
+	return ret;
 }
 
 PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const char **argv){
