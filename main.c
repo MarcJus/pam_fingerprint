@@ -29,31 +29,36 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 	tty_fd = open(tty_name, O_RDWR);
 	if(tty_fd < 0){
 		pam_syslog(pamh, LOG_ERR, "Could not open tty: %s", strerror(errno));
-		return PAM_ABORT;
+		ret = PAM_ABORT;
+		goto exit;
 	}
 
 	ret = dup2(tty_fd, STDOUT_FILENO);
 	if(tty_fd < 0){
 		pam_syslog(pamh, LOG_ERR, "Error duplicating stdout: %s", strerror(errno));
-		return PAM_ABORT;
+		ret = PAM_ABORT;
+		goto exit;
 	}
 
 	ret = dup2(tty_fd, STDERR_FILENO);
 	if(tty_fd < 0){
 		pam_syslog(pamh, LOG_ERR, "Error duplicating stderr: %s", strerror(errno));
-		return PAM_ABORT;
+		ret = PAM_ABORT;
+		goto exit;
 	}
 
 	fingerprint_fd = open("/dev/fingerprint", O_RDONLY);
 	if(fingerprint_fd < 0){
 		perror("Could not open fingerprint");
-		return PAM_ABORT;
+		ret = PAM_ABORT;
+		goto exit;
 	}
 
 	fingerprint_buffer = malloc(64);
 	if(fingerprint_buffer == NULL){
 		pam_syslog(pamh, LOG_ERR, "Could not allocate buffer for data");
-		return PAM_ABORT;
+		ret = PAM_ABORT;
+		goto exit_close;
 	}
     
 	printf("Waiting for fingerprint...\n");
@@ -62,7 +67,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 		perror("Could not read data from reader");
 		free(fingerprint_buffer);
 		close(fingerprint_fd);
-		return PAM_ABORT;
+		ret = PAM_ABORT;
+		goto exit_free;
 	} else {
 		printf("Received data: 0x%x%x\n", fingerprint_buffer[0], fingerprint_buffer[1]);
 	}
