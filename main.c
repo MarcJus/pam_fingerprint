@@ -70,7 +70,20 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 		ret = PAM_ABORT;
 		goto exit_free;
 	} else {
-		printf("Received data: 0x%x%x\n", fingerprint_buffer[0], fingerprint_buffer[1]);
+		switch(fingerprint_buffer[1]){ // the byte where the most important data is stored
+			case 0xfd: // failure
+				fprintf(stderr, "Fingerprint not recognized!\n");
+				ret = PAM_ABORT;
+				break;
+
+			case 0x01:
+				ret = PAM_SUCCESS;
+				break;
+
+			default:
+				ret = PAM_ABORT;
+				break;
+		}
 	}
 
 exit_free:
