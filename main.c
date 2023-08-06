@@ -73,6 +73,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 		switch(fingerprint_buffer[1]){ // the byte where the most important data is stored
 			case 0xfd: // failure
 				fprintf(stderr, "Fingerprint not recognized!\n");
+				pam_syslog(pamh, LOG_ERR, "Fingerprint not recognized!\n");
 				ret = PAM_ABORT;
 				break;
 
