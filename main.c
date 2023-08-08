@@ -17,6 +17,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 	int fingerprint_fd;
 	uint8_t *fingerprint_buffer;
 	pthread_t fingerprint_thread;
+	pid_t pid;
+
+	pid = getpid();
+
+	pthread_create(&fingerprint_thread, NULL, fingerprint_thread_function, (void *)&pid);
 
 	fingerprint_fd = open("/dev/fingerprint", O_RDONLY);
 	if(fingerprint_fd < 0){
