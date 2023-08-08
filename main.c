@@ -16,6 +16,10 @@ struct fingerprint_thread_arguments {
 typedef struct fingerprint_thread_arguments ft_args_t;
 
 void *fingerprint_thread_function(void *args){
+	ft_args_t ft_args;
+
+	ft_args = *((ft_args_t*)args);
+
 	return NULL;
 }
 
