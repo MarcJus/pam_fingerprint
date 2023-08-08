@@ -1,5 +1,5 @@
 build: main.c
-	gcc -fPIC -fno-stack-protector -c main.c -lpam -lpam_misc
+	gcc -fPIC -fno-stack-protector -c main.c -lpam -lpam_misc -lpthread
 	sudo -S ld -x --shared -o /usr/lib/x86_64-linux-gnu/security/fingerprint.so main.o /usr/lib/x86_64-linux-gnu/libpam_misc.so
 
 run:

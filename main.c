@@ -6,11 +6,17 @@
 #include <security/pam_ext.h>
 #include <syslog.h>
 #include <errno.h>
+#include <pthread.h>
+
+void *fingerprint_thread_function(void *args){
+	return NULL;
+}
 
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const char **argv ){
 	ssize_t ret;
 	int fingerprint_fd;
 	uint8_t *fingerprint_buffer;
+	pthread_t fingerprint_thread;
 
 	fingerprint_fd = open("/dev/fingerprint", O_RDONLY);
 	if(fingerprint_fd < 0){
