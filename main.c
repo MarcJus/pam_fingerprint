@@ -17,8 +17,15 @@ typedef struct fingerprint_thread_arguments ft_args_t;
 
 void *fingerprint_thread_function(void *args){
 	ft_args_t ft_args;
+	int fingerprint_fd, ret;
 
 	ft_args = *((ft_args_t*)args);
+
+	fingerprint_fd = open("/dev/fingerprint", O_RDONLY);
+	if(fingerprint_fd < 0){
+		pam_syslog(ft_args.pamh, LOG_ERR, "Could not open fingerprint reader: %s", strerror(errno));
+		return NULL;
+	}
 
 	return NULL;
 }
