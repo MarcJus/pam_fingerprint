@@ -18,12 +18,25 @@ typedef struct fingerprint_thread_arguments ft_args_t;
 void *fingerprint_thread_function(void *args){
 	ft_args_t ft_args;
 	int fingerprint_fd, ret;
+	ssize_t bytes_read;
+	uint8_t *fingerprint_buffer;
 
 	ft_args = *((ft_args_t*)args);
 
 	fingerprint_fd = open("/dev/fingerprint", O_RDONLY);
 	if(fingerprint_fd < 0){
 		pam_syslog(ft_args.pamh, LOG_ERR, "Could not open fingerprint reader: %s", strerror(errno));
+		return NULL;
+	}
+
+	fingerprint_buffer = malloc(64);
+	if(fingerprint_buffer == NULL){
+		pam_syslog(ft_args.pamh, LOG_ERR, "Memory error! Abort");
+	}
+
+	bytes_read = read(fingerprint_fd, fingerprint_buffer, 64);
+	if(fingerprint_fd < 0){
+		pam_syslog(ft_args.pamh, LOG_ERR, "Error reading data from reader: %s", strerror(errno));
 		return NULL;
 	}
 
