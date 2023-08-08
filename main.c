@@ -8,6 +8,13 @@
 #include <errno.h>
 #include <pthread.h>
 
+struct fingerprint_thread_arguments {
+	pam_handle_t *pamh;
+
+	pid_t parent_id;
+};
+typedef struct fingerprint_thread_arguments ft_args_t;
+
 void *fingerprint_thread_function(void *args){
 	return NULL;
 }
@@ -18,10 +25,20 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 	uint8_t *fingerprint_buffer;
 	pthread_t fingerprint_thread;
 	pid_t pid;
+	ft_args_t *ft_arguments;
+
+	ft_arguments = malloc(sizeof(ft_args_t));
+	if(ft_arguments == NULL){
+		pam_syslog(pamh, LOG_ERR, "Memory error! Abort");
+		ret = PAM_ABORT;
+		goto exit;
+	}
 
 	pid = getpid();
+	ft_arguments->parent_id = pid;
+	ft_arguments->pamh = pamh;
 
-	pthread_create(&fingerprint_thread, NULL, fingerprint_thread_function, (void *)&pid);
+	pthread_create(&fingerprint_thread, NULL, fingerprint_thread_function, (void *)ft_arguments);
 
 	fingerprint_fd = open("/dev/fingerprint", O_RDONLY);
 	if(fingerprint_fd < 0){
