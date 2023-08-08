@@ -14,7 +14,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 
 	fingerprint_fd = open("/dev/fingerprint", O_RDONLY);
 	if(fingerprint_fd < 0){
-		perror("Could not open fingerprint");
 		ret = PAM_ABORT;
 		goto exit;
 	}
@@ -26,10 +25,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 		goto exit_close;
 	}
     
-	printf("Waiting for fingerprint...\n");
 	ret = read(fingerprint_fd, fingerprint_buffer, 64);
 	if(ret < 0){
-		perror("Could not read data from reader");
 		free(fingerprint_buffer);
 		close(fingerprint_fd);
 		ret = PAM_ABORT;
@@ -37,7 +34,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,int argc, const
 	} else {
 		switch(fingerprint_buffer[1]){ // the byte where the most important data is stored
 			case 0xfd: // failure
-				fprintf(stderr, "Fingerprint not recognized!\n");
 				pam_syslog(pamh, LOG_ERR, "Fingerprint not recognized!\n");
 				ret = PAM_ABORT;
 				break;
